@@ -13,14 +13,22 @@ Custom skills collection for [Claude Code CLI](https://docs.anthropic.com/en/doc
 ### Global (all projects)
 
 ```bash
-claude skill install --global https://github.com/baslie/my-skills/building-wireframes
+# Clone to personal skills directory
+git clone https://github.com/baslie/my-skills.git ~/.claude/skills/my-skills
 ```
 
 ### Local (current project)
 
 ```bash
-claude skill install https://github.com/baslie/my-skills/building-wireframes
+# Clone to project skills directory
+git clone https://github.com/baslie/my-skills.git .claude/skills/my-skills
 ```
+
+### Manual installation
+
+Copy the skill folder (e.g., `building-wireframes/`) to:
+- **Global**: `~/.claude/skills/building-wireframes/`
+- **Local**: `.claude/skills/building-wireframes/`
 
 ## Usage
 

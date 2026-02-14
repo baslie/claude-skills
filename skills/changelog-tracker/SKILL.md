@@ -23,7 +23,7 @@ State file format:
 ```json
 {
   "last_reviewed_version": "1.0.40",
-  "last_reviewed_date": "2026-02-14"
+  "last_reviewed_date": "2025-02-14"
 }
 ```
 
@@ -33,14 +33,25 @@ Follow these steps sequentially. Do NOT skip any step.
 
 ### Step 1: Fetch the changelog
 
-Use **WebFetch** to retrieve the changelog:
+Use **Bash** to retrieve the changelog via GitHub API. Steps 1 and 2 are independent — run them **in parallel**.
 
-- **URL:** `https://raw.githubusercontent.com/anthropics/claude-code/refs/heads/main/CHANGELOG.md`
-- **Prompt:** `Extract ALL version entries from this changelog. For each version, return: version number, release date, and full content of all subsections (Features, Fixes, Breaking Changes, etc). Return them in order from newest to oldest. Be thorough — include every version entry present in the file.`
+**Primary method** — `gh` CLI (faster, uses existing auth):
 
-Parse the response to identify all versions with their dates and content.
+```bash
+gh api repos/anthropics/claude-code/contents/CHANGELOG.md --jq '.content' | base64 -d
+```
 
-### Step 2: Load state
+**Fallback** — if `gh` is not installed or fails, use `curl`:
+
+```bash
+curl -sL https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md
+```
+
+The output may be large. Use `head -N` to limit if only recent versions are needed, or save to a temp file and read with the **Read** tool.
+
+Parse the raw markdown output yourself to identify all versions with their dates and content. Each version starts with `## X.Y.Z` heading.
+
+### Step 2: Load state (run in parallel with Step 1)
 
 Use **Read** to load `~/.claude/changelog-tracker-state.json`.
 
@@ -161,7 +172,7 @@ Inform the user:
 
 ## Edge Cases
 
-1. **WebFetch fails:** Inform the user that the changelog could not be fetched. Suggest checking internet connection or trying again later. Do not update the state file.
+1. **Fetch fails:** If both `gh api` and `curl` fail, inform the user that the changelog could not be fetched. Suggest checking internet connection, `gh` auth status (`gh auth status`), or trying again later. Do not update the state file.
 
 2. **Changelog format changed:** If the changelog cannot be parsed into version entries, inform the user and show the raw URL so they can check manually.
 
